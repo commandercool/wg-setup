@@ -4,7 +4,7 @@
 echo 'net.ipv4.ip_forward=1' > /etc/sysctl.d/10-wireguard.conf
 sysctl -p /etc/sysctl.d/10-wireguard.conf
 # install wireguard
-apt update && sudo apt install wireguard iptables -y
+apt update && sudo apt install wireguard iptables qrencode -y
 # generate keys
 cd /etc/wireguard/
 wg genkey | tee server.key | wg pubkey > server.pub
@@ -23,3 +23,15 @@ AllowedIPs = 10.1.1.2/32" > wg0.conf
 # start wireguard
 systemctl enable wg-quick@wg0
 sudo systemctl start wg-quick@wg0
+# generate user config
+# use qrencode -t ansiutf8 < client.conf
+# to generate qr code
+echo "[Interface]
+PrivateKey = $(cat client.key)
+Address = 10.1.1.2/32
+DNS = 8.8.8.8
+
+[Peer]
+PublicKey = $(cat server.pub)
+AllowedIPs = 0.0.0.0/0
+Endpoint = <fix address here>:51820" > client.conf
